@@ -220,6 +220,12 @@ __marimo__/
 # datasets
 data/
 
+*.jpg
+
+*.png
+
+*.jpeg
+
 # experiment outputs
 results/
 
