@@ -1,5 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+
+
 *.py[codz]
 *$py.class
 
@@ -231,3 +233,15 @@ results/
 
 # mac system files
 .DS_Store
+
+# Model weights
+*.pth
+
+# Python cache
+__pycache__/
+
+# macOS
+.DS_Store
+
+# virtual env
+venv/
