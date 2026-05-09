@@ -8,6 +8,11 @@
 # IMPORTS
 # ====================================
 
+from sklearn.metrics import (
+    confusion_matrix,
+    classification_report
+)
+
 import time
 import numpy as np
 
@@ -58,10 +63,41 @@ print("\nModel initialized successfully!")
 
 
 # ====================================
+# CLASS WEIGHTS
+# ====================================
+
+class_counts = [
+    1099,  # bkl
+    6705,  # nv
+    115,   # df
+    1113,  # mel
+    142,   # vasc
+    514,   # bcc
+    327    # akiec
+]
+
+class_weights = 1.0 / torch.tensor(
+    class_counts,
+    dtype=torch.float32
+)
+
+class_weights = (
+    class_weights / class_weights.sum()
+)
+
+class_weights = class_weights.to(device)
+
+print("\nClass weights:")
+
+print(class_weights)
+
+# ====================================
 # LOSS FUNCTION
 # ====================================
 
-criterion = nn.CrossEntropyLoss()
+criterion = nn.CrossEntropyLoss(
+    weight=class_weights
+)
 
 print("\nLoss function created!")
 
@@ -72,7 +108,7 @@ print("\nLoss function created!")
 
 optimizer = optim.Adam(
     model.parameters(),
-    lr=0.001
+    lr=0.0003
 )
 
 print("\nOptimizer initialized!")
@@ -82,7 +118,7 @@ print("\nOptimizer initialized!")
 # TRAINING CONFIG
 # ====================================
 
-NUM_EPOCHS = 3
+NUM_EPOCHS = 10
 
 best_val_accuracy = 0.0
 
@@ -322,3 +358,35 @@ print(
     f"Test Accuracy: "
     f"{test_accuracy:.2f}%"
 )
+
+# ====================================
+# CLASSIFICATION REPORT
+# ====================================
+
+print("\nClassification Report:\n")
+
+class_names = list(
+    label_mapping.keys()
+)
+
+report = classification_report(
+    all_labels,
+    all_predictions,
+    target_names=class_names,
+    zero_division=0
+)
+
+print(report)
+
+# ====================================
+# CONFUSION MATRIX
+# ====================================
+
+cm = confusion_matrix(
+    all_labels,
+    all_predictions
+)
+
+print("\nConfusion Matrix:\n")
+
+print(cm)
