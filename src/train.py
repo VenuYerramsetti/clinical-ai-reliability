@@ -9,6 +9,7 @@
 # ====================================
 
 import time
+import numpy as np
 
 import torch
 import torch.nn as nn
@@ -83,6 +84,8 @@ print("\nOptimizer initialized!")
 
 NUM_EPOCHS = 3
 
+best_val_accuracy = 0.0
+
 print("\nTraining configuration ready!")
 
 
@@ -151,6 +154,89 @@ for epoch in range(NUM_EPOCHS):
         f"{epoch_duration:.2f} seconds"
     )
 
+# ====================================
+# VALIDATION LOOP
+# ====================================
+
+model.eval()
+
+val_running_loss = 0.0
+
+correct_predictions = 0
+total_predictions = 0
+
+# Disable gradient calculations
+with torch.no_grad():
+
+    for images, labels in val_loader:
+
+        # Move to device
+        images = images.to(device)
+        labels = labels.to(device)
+
+        # Forward pass
+        outputs = model(images)
+
+        # Validation loss
+        loss = criterion(outputs, labels)
+
+        val_running_loss += loss.item()
+
+        # Predicted class
+        _, predicted = torch.max(outputs, 1)
+
+        # Count correct predictions
+        correct_predictions += (
+            predicted == labels
+        ).sum().item()
+
+        # Total predictions
+        total_predictions += labels.size(0)
+
+
+# Average validation loss
+val_loss = (
+    val_running_loss / len(val_loader)
+)
+
+# Validation accuracy
+val_accuracy = (
+    correct_predictions / total_predictions
+) * 100
+
+
+print(f"Validation Loss: {val_loss:.4f}")
+
+print(
+    f"Validation Accuracy: "
+    f"{val_accuracy:.2f}%"
+)
+
+# ====================================
+# SAVE BEST MODEL
+# ====================================
+
+if val_accuracy > best_val_accuracy:
+
+    best_val_accuracy = val_accuracy
+
+    torch.save(
+        model.state_dict(),
+        "best_model.pth"
+    )
+
+    print(
+        "\nBest model saved!"
+    )
+
+# ====================================
+# SAVE TO MODELS FOLDER 
+# ====================================   
+
+torch.save(
+    model.state_dict(),
+    "models/best_model.pth"
+)
 
 # ====================================
 # TOTAL TRAINING TIME
