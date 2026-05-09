@@ -1,19 +1,16 @@
 # ====================================
 # CLINICAL AI RELIABILITY PROJECT
-# TRAINING PIPELINE
+# COMPLETE TRAINING PIPELINE
 # ====================================
-
 
 # ====================================
 # IMPORTS
 # ====================================
 
-from sklearn.metrics import (
-    confusion_matrix,
-    classification_report
-)
-
+import os
 import time
+import random
+
 import numpy as np
 
 import torch
@@ -22,7 +19,14 @@ import torch.optim as optim
 
 from torchvision import models
 
-# Import objects from data_loader.py
+from sklearn.metrics import (
+    confusion_matrix,
+    classification_report
+)
+
+import matplotlib.pyplot as plt
+
+# Import loaders and device
 from data_loader import (
     train_loader,
     val_loader,
@@ -31,6 +35,28 @@ from data_loader import (
     device
 )
 
+# ====================================
+# CREATE DIRECTORIES
+# ====================================
+
+os.makedirs("models", exist_ok=True)
+os.makedirs("plots", exist_ok=True)
+os.makedirs("reports", exist_ok=True)
+
+# ====================================
+# RANDOM SEED
+# ====================================
+
+SEED = 42
+
+random.seed(SEED)
+
+np.random.seed(SEED)
+
+torch.manual_seed(SEED)
+
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
 
 # ====================================
 # LOAD PRETRAINED RESNET18
@@ -40,6 +66,12 @@ weights = models.ResNet18_Weights.DEFAULT
 
 model = models.resnet18(weights=weights)
 
+# ====================================
+# FREEZE FEATURE EXTRACTOR
+# ====================================
+
+for param in model.parameters():
+    param.requires_grad = False
 
 # ====================================
 # MODIFY FINAL LAYER
@@ -52,6 +84,9 @@ model.fc = nn.Linear(
     num_classes
 )
 
+# Only train final layer
+for param in model.fc.parameters():
+    param.requires_grad = True
 
 # ====================================
 # MOVE MODEL TO DEVICE
@@ -60,7 +95,6 @@ model.fc = nn.Linear(
 model = model.to(device)
 
 print("\nModel initialized successfully!")
-
 
 # ====================================
 # CLASS WEIGHTS
@@ -101,18 +135,27 @@ criterion = nn.CrossEntropyLoss(
 
 print("\nLoss function created!")
 
-
 # ====================================
 # OPTIMIZER
 # ====================================
 
 optimizer = optim.Adam(
-    model.parameters(),
+    model.fc.parameters(),
     lr=0.0003
 )
 
 print("\nOptimizer initialized!")
 
+# ====================================
+# LEARNING RATE SCHEDULER
+# ====================================
+
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+    optimizer,
+    mode='max',
+    patience=2,
+    factor=0.5
+)
 
 # ====================================
 # TRAINING CONFIG
@@ -122,8 +165,20 @@ NUM_EPOCHS = 10
 
 best_val_accuracy = 0.0
 
+patience = 3
+patience_counter = 0
+
 print("\nTraining configuration ready!")
 
+# ====================================
+# TRACK METRICS
+# ====================================
+
+train_losses = []
+
+val_losses = []
+
+val_accuracies = []
 
 # ====================================
 # START TRAINING TIMER
@@ -131,54 +186,153 @@ print("\nTraining configuration ready!")
 
 training_start_time = time.time()
 
-
 # ====================================
 # TRAINING LOOP
 # ====================================
 
 for epoch in range(NUM_EPOCHS):
 
-    # Start epoch timer
     epoch_start_time = time.time()
 
     print(f"\nEpoch {epoch + 1}/{NUM_EPOCHS}")
 
-    # Set model to training mode
+    # ====================================
+    # TRAINING
+    # ====================================
+
     model.train()
 
     running_loss = 0.0
 
-    # Loop through batches
     for images, labels in train_loader:
 
-        # Move tensors to GPU/CPU
         images = images.to(device)
         labels = labels.to(device)
 
-        # Clear previous gradients
         optimizer.zero_grad()
 
-        # Forward pass
         outputs = model(images)
 
-        # Compute loss
         loss = criterion(outputs, labels)
 
-        # Backpropagation
         loss.backward()
 
-        # Update weights
         optimizer.step()
 
-        # Track total loss
         running_loss += loss.item()
 
-    # Average epoch loss
-    epoch_loss = running_loss / len(train_loader)
+    epoch_train_loss = (
+        running_loss / len(train_loader)
+    )
 
-    print(f"Training Loss: {epoch_loss:.4f}")
+    train_losses.append(epoch_train_loss)
 
-    # End epoch timer
+    print(
+        f"Training Loss: "
+        f"{epoch_train_loss:.4f}"
+    )
+
+    # ====================================
+    # VALIDATION
+    # ====================================
+
+    model.eval()
+
+    val_running_loss = 0.0
+
+    correct_predictions = 0
+    total_predictions = 0
+
+    with torch.no_grad():
+
+        for images, labels in val_loader:
+
+            images = images.to(device)
+            labels = labels.to(device)
+
+            outputs = model(images)
+
+            loss = criterion(outputs, labels)
+
+            val_running_loss += loss.item()
+
+            _, predicted = torch.max(outputs, 1)
+
+            correct_predictions += (
+                predicted == labels
+            ).sum().item()
+
+            total_predictions += labels.size(0)
+
+    epoch_val_loss = (
+        val_running_loss / len(val_loader)
+    )
+
+    val_accuracy = (
+        correct_predictions /
+        total_predictions
+    ) * 100
+
+    val_losses.append(epoch_val_loss)
+
+    val_accuracies.append(val_accuracy)
+
+    print(
+        f"Validation Loss: "
+        f"{epoch_val_loss:.4f}"
+    )
+
+    print(
+        f"Validation Accuracy: "
+        f"{val_accuracy:.2f}%"
+    )
+
+    # ====================================
+    # LEARNING RATE SCHEDULER
+    # ====================================
+
+    scheduler.step(val_accuracy)
+
+    # ====================================
+    # SAVE BEST MODEL
+    # ====================================
+
+    if val_accuracy > best_val_accuracy:
+
+        best_val_accuracy = val_accuracy
+
+        patience_counter = 0
+
+        torch.save(
+            model.state_dict(),
+            "models/best_model.pth"
+        )
+
+        print("\nBest model saved!")
+
+    else:
+
+        patience_counter += 1
+
+        print(
+            f"No improvement "
+            f"({patience_counter}/{patience})"
+        )
+
+    # ====================================
+    # EARLY STOPPING
+    # ====================================
+
+    if patience_counter >= patience:
+
+        print("\nEarly stopping triggered!")
+
+        break
+
+    # ====================================
+    # EPOCH TIME
+    # ====================================
+
     epoch_end_time = time.time()
 
     epoch_duration = (
@@ -189,90 +343,6 @@ for epoch in range(NUM_EPOCHS):
         f"Epoch Time: "
         f"{epoch_duration:.2f} seconds"
     )
-
-# ====================================
-# VALIDATION LOOP
-# ====================================
-
-model.eval()
-
-val_running_loss = 0.0
-
-correct_predictions = 0
-total_predictions = 0
-
-# Disable gradient calculations
-with torch.no_grad():
-
-    for images, labels in val_loader:
-
-        # Move to device
-        images = images.to(device)
-        labels = labels.to(device)
-
-        # Forward pass
-        outputs = model(images)
-
-        # Validation loss
-        loss = criterion(outputs, labels)
-
-        val_running_loss += loss.item()
-
-        # Predicted class
-        _, predicted = torch.max(outputs, 1)
-
-        # Count correct predictions
-        correct_predictions += (
-            predicted == labels
-        ).sum().item()
-
-        # Total predictions
-        total_predictions += labels.size(0)
-
-
-# Average validation loss
-val_loss = (
-    val_running_loss / len(val_loader)
-)
-
-# Validation accuracy
-val_accuracy = (
-    correct_predictions / total_predictions
-) * 100
-
-
-print(f"Validation Loss: {val_loss:.4f}")
-
-print(
-    f"Validation Accuracy: "
-    f"{val_accuracy:.2f}%"
-)
-
-# ====================================
-# SAVE BEST MODEL
-# ====================================
-
-if val_accuracy > best_val_accuracy:
-
-    best_val_accuracy = val_accuracy
-
-    torch.save(
-        model.state_dict(),
-        "best_model.pth"
-    )
-
-    print(
-        "\nBest model saved!"
-    )
-
-# ====================================
-# SAVE TO MODELS FOLDER 
-# ====================================   
-
-torch.save(
-    model.state_dict(),
-    "models/best_model.pth"
-)
 
 # ====================================
 # TOTAL TRAINING TIME
@@ -292,6 +362,19 @@ print(
 )
 
 # ====================================
+# LOAD BEST MODEL
+# ====================================
+
+model.load_state_dict(
+    torch.load(
+        "models/best_model.pth",
+        map_location=device
+    )
+)
+
+print("\nBest model loaded!")
+
+# ====================================
 # TEST SET EVALUATION
 # ====================================
 
@@ -309,29 +392,23 @@ with torch.no_grad():
 
     for images, labels in test_loader:
 
-        # Move to device
         images = images.to(device)
         labels = labels.to(device)
 
-        # Forward pass
         outputs = model(images)
 
-        # Compute loss
         loss = criterion(outputs, labels)
 
         test_loss += loss.item()
 
-        # Get predicted class
         _, predicted = torch.max(outputs, 1)
 
-        # Accuracy tracking
         total += labels.size(0)
 
         correct += (
             predicted == labels
         ).sum().item()
 
-        # Store predictions
         all_predictions.extend(
             predicted.cpu().numpy()
         )
@@ -340,7 +417,10 @@ with torch.no_grad():
             labels.cpu().numpy()
         )
 
-# Final metrics
+# ====================================
+# FINAL TEST METRICS
+# ====================================
+
 test_loss = test_loss / len(test_loader)
 
 test_accuracy = (
@@ -378,6 +458,14 @@ report = classification_report(
 
 print(report)
 
+# Save report
+with open(
+    "reports/classification_report.txt",
+    "w"
+) as f:
+
+    f.write(report)
+
 # ====================================
 # CONFUSION MATRIX
 # ====================================
@@ -390,3 +478,135 @@ cm = confusion_matrix(
 print("\nConfusion Matrix:\n")
 
 print(cm)
+
+# ====================================
+# PLOT CONFUSION MATRIX
+# ====================================
+
+plt.figure(figsize=(10, 8))
+
+plt.imshow(cm)
+
+plt.colorbar()
+
+plt.xticks(
+    ticks=np.arange(len(class_names)),
+    labels=class_names,
+    rotation=45
+)
+
+plt.yticks(
+    ticks=np.arange(len(class_names)),
+    labels=class_names
+)
+
+plt.xlabel("Predicted Label")
+
+plt.ylabel("True Label")
+
+plt.title("Confusion Matrix")
+
+for i in range(len(class_names)):
+    for j in range(len(class_names)):
+
+        plt.text(
+            j,
+            i,
+            cm[i, j],
+            ha="center",
+            va="center"
+        )
+
+plt.tight_layout()
+
+plt.savefig(
+    "plots/confusion_matrix.png"
+)
+
+plt.close()
+
+# ====================================
+# PLOT TRAINING CURVES
+# ====================================
+
+# Training + Validation Loss
+plt.figure(figsize=(10, 6))
+
+plt.plot(
+    train_losses,
+    label="Training Loss"
+)
+
+plt.plot(
+    val_losses,
+    label="Validation Loss"
+)
+
+plt.xlabel("Epoch")
+
+plt.ylabel("Loss")
+
+plt.title("Training vs Validation Loss")
+
+plt.legend()
+
+plt.grid(True)
+
+plt.savefig(
+    "plots/loss_curve.png"
+)
+
+plt.close()
+
+# ====================================
+# VALIDATION ACCURACY CURVE
+# ====================================
+
+plt.figure(figsize=(10, 6))
+
+plt.plot(
+    val_accuracies,
+    label="Validation Accuracy"
+)
+
+plt.xlabel("Epoch")
+
+plt.ylabel("Accuracy (%)")
+
+plt.title("Validation Accuracy")
+
+plt.legend()
+
+plt.grid(True)
+
+plt.savefig(
+    "plots/validation_accuracy.png"
+)
+
+plt.close()
+
+print("\nPlots saved successfully!")
+
+print(
+    "\nSaved files:"
+)
+
+print(
+    "- models/best_model.pth"
+)
+
+print(
+    "- reports/classification_report.txt"
+)
+
+print(
+    "- plots/confusion_matrix.png"
+)
+
+print(
+    "- plots/loss_curve.png"
+)
+
+print(
+    "- plots/validation_accuracy.png"
+)
