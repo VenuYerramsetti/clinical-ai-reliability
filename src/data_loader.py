@@ -108,3 +108,38 @@ print("\nImage successfully loaded!")
 
 print("Image size:", image.size)
 print("Image mode:", image.mode)
+
+# ====================================
+# IMAGE TRANSFORMS
+# ====================================
+
+# Transform pipeline for deep learning models
+
+transform = transforms.Compose([
+
+    # Resize all images to same dimensions
+    transforms.Resize((224, 224)),
+
+    # Convert PIL image -> PyTorch tensor
+    transforms.ToTensor(),
+])
+
+
+# ====================================
+# TEST TRANSFORMS
+# ====================================
+
+# Apply transforms
+image_tensor = transform(image)
+
+print("\nTensor successfully created!")
+
+# Tensor shape
+print("Tensor shape:", image_tensor.shape)
+
+# Tensor type
+print("Tensor dtype:", image_tensor.dtype)
+
+# Min/max pixel values
+print("Min pixel value:", image_tensor.min().item())
+print("Max pixel value:", image_tensor.max().item())
