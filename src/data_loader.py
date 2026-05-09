@@ -25,6 +25,8 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
 
+from torchvision import models
+import torch.nn as nn
 
 # ====================================
 # PATH CONFIGURATION
@@ -341,3 +343,57 @@ print(labels[:10])
 
 print("\nImage tensor min:", images.min().item())
 print("Image tensor max:", images.max().item())
+
+
+# ====================================
+# DEVICE CONFIGURATION
+# ====================================
+
+# Use Apple Silicon GPU if available
+
+device = torch.device(
+    "mps" if torch.backends.mps.is_available()
+    else "cpu"
+)
+
+print("\nUsing device:", device)
+
+
+# ====================================
+# LOAD PRETRAINED RESNET18
+# ====================================
+
+
+
+# Modern torchvision syntax
+
+weights = models.ResNet18_Weights.DEFAULT
+
+model = models.resnet18(weights=weights)
+
+
+# ====================================
+# MODIFY FINAL LAYER
+# ====================================
+
+# Number of output classes
+num_classes = len(label_mapping)
+
+# Replace final classification layer
+model.fc = nn.Linear(
+    model.fc.in_features,
+    num_classes
+)
+
+
+# ====================================
+# MOVE MODEL TO DEVICE
+# ====================================
+
+model = model.to(device)
+
+print("\nModel loaded successfully!")
+
+print("\nFinal layer:")
+
+print(model.fc)
