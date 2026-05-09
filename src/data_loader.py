@@ -297,3 +297,47 @@ print("\nDataset Objects Created Successfully!")
 print("Train dataset size:", len(train_dataset))
 print("Validation dataset size:", len(val_dataset))
 print("Test dataset size:", len(test_dataset))
+
+# ====================================
+# DATALOADERS
+# ====================================
+
+BATCH_SIZE = 32
+
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=True
+)
+
+val_loader = DataLoader(
+    val_dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=False
+)
+
+test_loader = DataLoader(
+    test_dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=False
+)
+
+
+# ====================================
+# TEST DATALOADER
+# ====================================
+
+# Get first batch
+images, labels = next(iter(train_loader))
+
+print("\nDataloader Test Successful!")
+
+print("Batch image shape:", images.shape)
+
+print("Batch labels shape:", labels.shape)
+
+print("Label batch:")
+print(labels[:10])
+
+print("\nImage tensor min:", images.min().item())
+print("Image tensor max:", images.max().item())
