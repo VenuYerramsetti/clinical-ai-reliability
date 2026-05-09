@@ -26,7 +26,10 @@ from sklearn.metrics import (
 
 import matplotlib.pyplot as plt
 
-# Import loaders and device
+# ====================================
+# IMPORT DATA LOADERS
+# ====================================
+
 from data_loader import (
     train_loader,
     val_loader,
@@ -50,7 +53,6 @@ os.makedirs("reports", exist_ok=True)
 SEED = 42
 
 random.seed(SEED)
-
 np.random.seed(SEED)
 
 torch.manual_seed(SEED)
@@ -65,6 +67,8 @@ if torch.cuda.is_available():
 weights = models.ResNet18_Weights.DEFAULT
 
 model = models.resnet18(weights=weights)
+
+print("\nModel loaded successfully!")
 
 # ====================================
 # FREEZE FEATURE EXTRACTOR
@@ -84,9 +88,12 @@ model.fc = nn.Linear(
     num_classes
 )
 
-# Only train final layer
+# Train only classifier layer
 for param in model.fc.parameters():
     param.requires_grad = True
+
+print("\nFinal layer:")
+print(model.fc)
 
 # ====================================
 # MOVE MODEL TO DEVICE
@@ -100,19 +107,19 @@ print("\nModel initialized successfully!")
 # CLASS WEIGHTS
 # ====================================
 
-class_counts = [
-    1099,  # bkl
-    6705,  # nv
-    115,   # df
-    1113,  # mel
-    142,   # vasc
-    514,   # bcc
-    327    # akiec
-]
+class_counts = torch.tensor([
+    1099,
+    6705,
+    115,
+    1113,
+    142,
+    514,
+    327
+], dtype=torch.float32)
 
-class_weights = 1.0 / torch.tensor(
-    class_counts,
-    dtype=torch.float32
+# Better balanced weighting
+class_weights = (
+    class_counts.sum() / class_counts
 )
 
 class_weights = (
@@ -122,7 +129,6 @@ class_weights = (
 class_weights = class_weights.to(device)
 
 print("\nClass weights:")
-
 print(class_weights)
 
 # ====================================
@@ -147,12 +153,12 @@ optimizer = optim.Adam(
 print("\nOptimizer initialized!")
 
 # ====================================
-# LEARNING RATE SCHEDULER
+# LR SCHEDULER
 # ====================================
 
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(
     optimizer,
-    mode='max',
+    mode="max",
     patience=2,
     factor=0.5
 )
@@ -171,17 +177,15 @@ patience_counter = 0
 print("\nTraining configuration ready!")
 
 # ====================================
-# TRACK METRICS
+# METRIC TRACKING
 # ====================================
 
 train_losses = []
-
 val_losses = []
-
 val_accuracies = []
 
 # ====================================
-# START TRAINING TIMER
+# TRAINING TIMER
 # ====================================
 
 training_start_time = time.time()
@@ -269,8 +273,7 @@ for epoch in range(NUM_EPOCHS):
     )
 
     val_accuracy = (
-        correct_predictions /
-        total_predictions
+        correct_predictions / total_predictions
     ) * 100
 
     val_losses.append(epoch_val_loss)
@@ -288,7 +291,15 @@ for epoch in range(NUM_EPOCHS):
     )
 
     # ====================================
-    # LEARNING RATE SCHEDULER
+    # LEARNING RATE
+    # ====================================
+
+    current_lr = optimizer.param_groups[0]["lr"]
+
+    print(f"Learning Rate: {current_lr}")
+
+    # ====================================
+    # LR SCHEDULER
     # ====================================
 
     scheduler.step(val_accuracy)
@@ -375,7 +386,7 @@ model.load_state_dict(
 print("\nBest model loaded!")
 
 # ====================================
-# TEST SET EVALUATION
+# TEST EVALUATION
 # ====================================
 
 model.eval()
@@ -418,7 +429,7 @@ with torch.no_grad():
         )
 
 # ====================================
-# FINAL TEST METRICS
+# TEST METRICS
 # ====================================
 
 test_loss = test_loss / len(test_loader)
@@ -429,21 +440,13 @@ test_accuracy = (
 
 print("\nTest Results")
 
-print(
-    f"Test Loss: "
-    f"{test_loss:.4f}"
-)
+print(f"Test Loss: {test_loss:.4f}")
 
-print(
-    f"Test Accuracy: "
-    f"{test_accuracy:.2f}%"
-)
+print(f"Test Accuracy: {test_accuracy:.2f}%")
 
 # ====================================
 # CLASSIFICATION REPORT
 # ====================================
-
-print("\nClassification Report:\n")
 
 class_names = list(
     label_mapping.keys()
@@ -456,6 +459,8 @@ report = classification_report(
     zero_division=0
 )
 
+print("\nClassification Report:\n")
+
 print(report)
 
 # Save report
@@ -467,6 +472,35 @@ with open(
     f.write(report)
 
 # ====================================
+# SAVE METRICS
+# ====================================
+
+with open(
+    "reports/test_metrics.txt",
+    "w"
+) as f:
+
+    f.write(
+        f"Test Accuracy: "
+        f"{test_accuracy:.2f}%\n"
+    )
+
+    f.write(
+        f"Test Loss: "
+        f"{test_loss:.4f}\n"
+    )
+
+    f.write(
+        f"Best Validation Accuracy: "
+        f"{best_val_accuracy:.2f}%\n"
+    )
+
+    f.write(
+        f"Training Time: "
+        f"{total_training_time:.2f} seconds\n"
+    )
+
+# ====================================
 # CONFUSION MATRIX
 # ====================================
 
@@ -475,9 +509,13 @@ cm = confusion_matrix(
     all_predictions
 )
 
-print("\nConfusion Matrix:\n")
-
-print(cm)
+# Save raw confusion matrix
+np.savetxt(
+    "reports/confusion_matrix.csv",
+    cm,
+    delimiter=",",
+    fmt="%d"
+)
 
 # ====================================
 # PLOT CONFUSION MATRIX
@@ -500,9 +538,9 @@ plt.yticks(
     labels=class_names
 )
 
-plt.xlabel("Predicted Label")
+plt.xlabel("Predicted")
 
-plt.ylabel("True Label")
+plt.ylabel("True")
 
 plt.title("Confusion Matrix")
 
@@ -526,10 +564,9 @@ plt.savefig(
 plt.close()
 
 # ====================================
-# PLOT TRAINING CURVES
+# LOSS CURVE
 # ====================================
 
-# Training + Validation Loss
 plt.figure(figsize=(10, 6))
 
 plt.plot(
@@ -546,7 +583,7 @@ plt.xlabel("Epoch")
 
 plt.ylabel("Loss")
 
-plt.title("Training vs Validation Loss")
+plt.title("Loss Curves")
 
 plt.legend()
 
@@ -587,26 +624,12 @@ plt.close()
 
 print("\nPlots saved successfully!")
 
-print(
-    "\nSaved files:"
-)
+print("\nSaved files:")
 
-print(
-    "- models/best_model.pth"
-)
-
-print(
-    "- reports/classification_report.txt"
-)
-
-print(
-    "- plots/confusion_matrix.png"
-)
-
-print(
-    "- plots/loss_curve.png"
-)
-
-print(
-    "- plots/validation_accuracy.png"
-)
+print("- models/best_model.pth")
+print("- reports/classification_report.txt")
+print("- reports/test_metrics.txt")
+print("- reports/confusion_matrix.csv")
+print("- plots/confusion_matrix.png")
+print("- plots/loss_curve.png")
+print("- plots/validation_accuracy.png")
