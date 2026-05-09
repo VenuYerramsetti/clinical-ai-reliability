@@ -51,4 +51,23 @@ model.fc = nn.Linear(
 
 model = model.to(device)
 
-print("\nModel initialized successfully!")
+print("\nModel initialized successfully! ")
+
+# ====================================
+# LOSS FUNCTION
+# ====================================
+
+criterion = nn.CrossEntropyLoss()
+
+print("\nLoss function created!")
+
+# ====================================
+# OPTIMIZER
+# ====================================
+
+optimizer = optim.Adam(
+    model.parameters(),
+    lr=0.001
+)
+
+print("\nOptimizer initialized!")
