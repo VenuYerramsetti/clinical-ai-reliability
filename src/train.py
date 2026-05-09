@@ -254,3 +254,71 @@ print(
     f"Total Training Time: "
     f"{total_training_time:.2f} seconds"
 )
+
+# ====================================
+# TEST SET EVALUATION
+# ====================================
+
+model.eval()
+
+test_loss = 0.0
+
+correct = 0
+total = 0
+
+all_predictions = []
+all_labels = []
+
+with torch.no_grad():
+
+    for images, labels in test_loader:
+
+        # Move to device
+        images = images.to(device)
+        labels = labels.to(device)
+
+        # Forward pass
+        outputs = model(images)
+
+        # Compute loss
+        loss = criterion(outputs, labels)
+
+        test_loss += loss.item()
+
+        # Get predicted class
+        _, predicted = torch.max(outputs, 1)
+
+        # Accuracy tracking
+        total += labels.size(0)
+
+        correct += (
+            predicted == labels
+        ).sum().item()
+
+        # Store predictions
+        all_predictions.extend(
+            predicted.cpu().numpy()
+        )
+
+        all_labels.extend(
+            labels.cpu().numpy()
+        )
+
+# Final metrics
+test_loss = test_loss / len(test_loader)
+
+test_accuracy = (
+    100 * correct / total
+)
+
+print("\nTest Results")
+
+print(
+    f"Test Loss: "
+    f"{test_loss:.4f}"
+)
+
+print(
+    f"Test Accuracy: "
+    f"{test_accuracy:.2f}%"
+)
