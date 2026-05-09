@@ -230,3 +230,70 @@ print("Image tensor shape:", sample_image.shape)
 print("Label:", sample_label)
 
 print("Tensor type:", type(sample_image))
+
+
+# ====================================
+# TRAIN / VALIDATION / TEST SPLIT
+# ====================================
+
+# First split:
+# train vs remaining data
+
+train_df, temp_df = train_test_split(
+    metadata,
+    test_size=0.30,
+    random_state=42,
+    stratify=metadata["label"]
+)
+
+# Second split:
+# validation vs test
+
+val_df, test_df = train_test_split(
+    temp_df,
+    test_size=0.50,
+    random_state=42,
+    stratify=temp_df["label"]
+)
+
+
+# ====================================
+# SPLIT STATISTICS
+# ====================================
+
+print("\nDataset Splits:")
+
+print("Train samples:", len(train_df))
+print("Validation samples:", len(val_df))
+print("Test samples:", len(test_df))
+
+
+# ====================================
+# CREATE DATASETS
+# ====================================
+
+train_dataset = HAM10000Dataset(
+    dataframe=train_df,
+    transform=transform
+)
+
+val_dataset = HAM10000Dataset(
+    dataframe=val_df,
+    transform=transform
+)
+
+test_dataset = HAM10000Dataset(
+    dataframe=test_df,
+    transform=transform
+)
+
+
+# ====================================
+# TEST DATASET SIZES
+# ====================================
+
+print("\nDataset Objects Created Successfully!")
+
+print("Train dataset size:", len(train_dataset))
+print("Validation dataset size:", len(val_dataset))
+print("Test dataset size:", len(test_dataset))
