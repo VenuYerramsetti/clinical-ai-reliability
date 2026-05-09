@@ -143,3 +143,90 @@ print("Tensor dtype:", image_tensor.dtype)
 # Min/max pixel values
 print("Min pixel value:", image_tensor.min().item())
 print("Max pixel value:", image_tensor.max().item())
+
+
+# ====================================
+# LABEL ENCODING
+# ====================================
+
+# Convert diagnosis labels into numbers
+
+# Unique diagnosis categories
+classes = metadata["dx"].unique()
+
+# Create mapping dictionary
+label_mapping = {
+    label: idx
+    for idx, label in enumerate(classes)
+}
+
+print("\nLabel Mapping:")
+print(label_mapping)
+
+# Convert text labels -> numeric labels
+metadata["label"] = metadata["dx"].map(label_mapping)
+
+print("\nEncoded Labels Preview:")
+print(metadata[["dx", "label"]].head())
+
+
+# ====================================
+# CUSTOM DATASET CLASS
+# ====================================
+
+class HAM10000Dataset(Dataset):
+
+    def __init__(self, dataframe, transform=None):
+
+        self.dataframe = dataframe
+        self.transform = transform
+
+    def __len__(self):
+
+        # Total number of samples
+        return len(self.dataframe)
+
+    def __getitem__(self, idx):
+
+        # Get row
+        row = self.dataframe.iloc[idx]
+
+        # Image path
+        image_path = row["image_path"]
+
+        # Numeric label
+        label = row["label"]
+
+        # Load image
+        image = Image.open(image_path).convert("RGB")
+
+        # Apply transforms
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label
+
+
+# ====================================
+# CREATE DATASET
+# ====================================
+
+dataset = HAM10000Dataset(
+    dataframe=metadata,
+    transform=transform
+)
+
+
+# ====================================
+# TEST DATASET
+# ====================================
+
+sample_image, sample_label = dataset[0]
+
+print("\nDataset Test Successful!")
+
+print("Image tensor shape:", sample_image.shape)
+
+print("Label:", sample_label)
+
+print("Tensor type:", type(sample_image))
