@@ -1,4 +1,4 @@
 Test Accuracy: 70.99%
 Test Loss: 0.8669
 Best Validation Loss: 0.8118
-Training Time: 494.99 seconds
+Training Time: 514.54 seconds
