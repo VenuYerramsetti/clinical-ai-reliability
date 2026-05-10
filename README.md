@@ -1,22 +1,35 @@
 # Clinical AI Reliability
 ## Explainable Deep Learning for Skin Lesion Classification Using ResNet18 and Grad-CAM
+
 ---
+
 # Project Overview
-This project investigates the reliability and interpretability of deep learning models for clinical skin lesion classification using the HAM10000 dermatology dataset.
-The system uses:
-- ResNet18 transfer learning
+
+This project investigates the reliability, interpretability, and performance of deep learning models for clinical skin lesion classification using the HAM10000 dermatology dataset.
+
+The system combines:
+
+- Transfer learning
 - Fine-tuning strategies
-- Data augmentation
+- Explainable AI (Grad-CAM)
 - Early stopping
-- Learning rate scheduling
 - Weighted loss functions
-- Grad-CAM explainability
-The goal is to improve trustworthy AI in medical imaging by combining strong classification performance with interpretable visual explanations.
+- Learning rate scheduling
+- Medical image analysis
+
+The primary goal is to improve trustworthy AI systems for healthcare applications by combining strong predictive performance with interpretable visual explanations.
+
 ---
+
 # Dataset
+
 Dataset used:
-HAM10000 ("Human Against Machine with 10000 Training Images")
-Dataset contains 7 diagnostic categories:
+
+**HAM10000**  
+(Human Against Machine with 10000 Training Images)
+
+The dataset contains 7 diagnostic skin lesion categories:
+
 | Label | Description |
 |---|---|
 | nv | Melanocytic nevi |
@@ -26,95 +39,150 @@ Dataset contains 7 diagnostic categories:
 | akiec | Actinic keratoses |
 | vasc | Vascular lesions |
 | df | Dermatofibroma |
-Total images:
-- 10,015 dermoscopic images
-Train/Validation/Test split:
-- Train: 70%
-- Validation: 15%
-- Test: 15%
+
+### Dataset Statistics
+
+- Total Images: 10,015
+- Image Type: Dermoscopic Images
+- Classes: 7
+- Input Resolution: 224 × 224
+
+### Dataset Split
+
+| Split | Percentage |
+|---|---|
+| Train | 70% |
+| Validation | 15% |
+| Test | 15% |
+
 ---
+
 # Model Architecture
-Model:
+
+## Base Model
+
 - ResNet18 pretrained on ImageNet
-Transfer Learning Strategy:
-- Partial fine-tuning
-- Unfroze final ResNet layer (`layer4`)
-- Replaced final classification layer
+
+## Transfer Learning Strategy
+
+The project uses partial fine-tuning:
+
+- Early layers frozen
+- Final ResNet block (`layer4`) unfrozen
+- Final classification head replaced
+
 Final classifier:
+
 ```python
 nn.Linear(512, 7)
+```
 
-⸻
+---
 
-Training Features
+# Training Features
 
-The pipeline includes:
+The training pipeline includes:
 
-* Transfer learning
-* Partial fine-tuning
-* Weighted cross-entropy loss
-* Early stopping
-* ReduceLROnPlateau scheduler
-* Validation checkpointing
-* Experiment tracking
-* Confusion matrix generation
-* Grad-CAM explainability
+- Transfer learning
+- Partial fine-tuning
+- Data augmentation
+- Weighted cross-entropy loss
+- Early stopping
+- ReduceLROnPlateau scheduler
+- Validation checkpointing
+- Experiment tracking
+- Confusion matrix generation
+- Grad-CAM explainability
 
-⸻
+---
 
-Performance
+# Best Experimental Results
 
-Best Experimental Result
+| Metric | Value |
+|---|---|
+| Test Accuracy | 84.30% |
+| Weighted F1 Score | 0.84 |
+| Macro F1 Score | 0.72 |
 
-Metric	Value
-Test Accuracy	84.30%
-Macro F1 Score	0.72
-Weighted F1 Score	0.84
+---
 
-⸻
+# Classification Report
 
-Classification Report
+| Class | Precision | Recall | F1-Score |
+|---|---|---|---|
+| bkl | 0.81 | 0.54 | 0.65 |
+| nv | 0.91 | 0.94 | 0.92 |
+| df | 0.60 | 0.53 | 0.56 |
+| mel | 0.64 | 0.68 | 0.66 |
+| vasc | 0.94 | 0.73 | 0.82 |
+| bcc | 0.65 | 0.83 | 0.73 |
+| akiec | 0.66 | 0.71 | 0.69 |
 
-              precision    recall  f1-score
-bkl              0.81       0.54      0.65
-nv               0.91       0.94      0.92
-df               0.60       0.53      0.56
-mel              0.64       0.68      0.66
-vasc             0.94       0.73      0.82
-bcc              0.65       0.83      0.73
-akiec            0.66       0.71      0.69
+---
 
-⸻
+# Training Curves
 
-Training Curves
+## Loss Curve
 
-Loss Curves
+![Loss Curve](plots/loss_curve.png)
 
-Validation Accuracy
+---
 
-⸻
+## Validation Accuracy
 
-Confusion Matrix
+![Validation Accuracy](plots/validation_accuracy.png)
 
-⸻
+---
 
-Explainable AI with Grad-CAM
+# Confusion Matrix
+
+![Confusion Matrix](plots/confusion_matrix.png)
+
+---
+
+# Explainable AI with Grad-CAM
 
 Grad-CAM visualizations were generated to improve model interpretability and identify image regions contributing most strongly to predictions.
 
-Example Grad-CAM outputs:
+The heatmaps demonstrate that the model focuses primarily on lesion regions and clinically relevant structures.
 
-Original	Grad-CAM
-	
+---
 
-Additional Grad-CAM examples are available in:
+## Grad-CAM Examples
 
-plots/gradcam/
+### Example 1
 
-⸻
+![GradCAM1](plots/gradcam/sample_1.png)
 
-Project Structure
+---
 
+### Example 2
+
+![GradCAM2](plots/gradcam/sample_2.png)
+
+---
+
+### Example 3
+
+![GradCAM3](plots/gradcam/sample_3.png)
+
+---
+
+### Example 4
+
+![GradCAM4](plots/gradcam/sample_4.png)
+
+---
+
+### Example 5
+
+![GradCAM5](plots/gradcam/sample_5.png)
+
+---
+
+# Project Structure
+
+```plaintext
 clinical-ai-reliability/
 │
 ├── data/
@@ -126,6 +194,11 @@ clinical-ai-reliability/
 │   ├── loss_curve.png
 │   ├── validation_accuracy.png
 │   └── gradcam/
+│       ├── sample_1.png
+│       ├── sample_2.png
+│       ├── sample_3.png
+│       ├── sample_4.png
+│       └── sample_5.png
 │
 ├── reports/
 │   ├── classification_report.txt
@@ -140,113 +213,119 @@ clinical-ai-reliability/
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+```
 
-⸻
+---
 
-Installation
+# Installation
 
 Clone repository:
 
+```bash
 git clone https://github.com/VenuYerramsetti/clinical-ai-reliability.git
+```
 
 Move into project:
 
+```bash
 cd clinical-ai-reliability
+```
 
 Create virtual environment:
 
+```bash
 python -m venv venv
+```
 
 Activate environment:
 
 Mac/Linux:
 
+```bash
 source venv/bin/activate
+```
 
 Install dependencies:
 
+```bash
 pip install -r requirements.txt
+```
 
-⸻
+---
 
-Running Training
+# Running Training
 
+```bash
 python src/train.py
+```
 
-⸻
+---
 
-Running Grad-CAM
+# Running Grad-CAM
 
+```bash
 python src/gradcam.py
+```
 
-⸻
+---
 
-Research Contributions
+# Research Contributions
 
 This project demonstrates:
 
-* Reliable medical image classification
-* Explainable AI for healthcare
-* Deep learning interpretability
-* Transfer learning optimization
-* AI transparency in clinical systems
+- Reliable medical image classification
+- Explainable AI for healthcare
+- Deep learning interpretability
+- Transfer learning optimization
+- AI transparency in clinical systems
+- Clinical decision support potential
 
-⸻
+---
 
-Future Improvements
+# Future Improvements
 
 Potential future work includes:
 
-* EfficientNet architectures
-* Vision Transformers (ViTs)
-* Ensemble learning
-* Multi-modal clinical metadata integration
-* Uncertainty estimation
-* Clinical calibration analysis
-
-⸻
-
-Technologies Used
-
-* Python
-* PyTorch
-* Torchvision
-* NumPy
-* Pandas
-* Matplotlib
-* Scikit-learn
-* OpenCV
-
-⸻
-
-Author
-
-Venu Yerramsetti
-
-Master’s Applicant — AI/ML Research
-
-Focus Areas:
-
-* Medical AI
-* Explainable AI
-* Clinical Reliability
-* Computer Vision
-* Deep Learning
-
-⸻
-
-License
-
-This project is for academic and research purposes.
+- EfficientNet architectures
+- Vision Transformers (ViTs)
+- Ensemble learning
+- Multi-modal metadata integration
+- Uncertainty estimation
+- Calibration analysis
+- Federated medical learning
+- Clinical deployment optimization
 
 ---
-# THEN DO
-Save file.
-Then run:
-```bash
-git add .
-git commit -m "Added professional project README"
-git push
 
-⸻
+# Technologies Used
 
+- Python
+- PyTorch
+- Torchvision
+- NumPy
+- Pandas
+- Matplotlib
+- Scikit-learn
+- OpenCV
+
+---
+
+# Author
+
+## Venu Madhuri Yerramsetti
+
+AI/ML Research and Graduate School Applicant
+
+Research Interests:
+- Medical AI
+- Explainable AI
+- Clinical Reliability
+- Deep Learning
+- Computer Vision
+- Healthcare AI Systems
+
+---
+
+# License
+
+This project is for academic and research purposes.
