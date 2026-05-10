@@ -330,18 +330,66 @@ This project demonstrates:
 
 ---
 
-# Future Improvements
 
-Potential future work includes:
+# Reliability and Clinical Considerations
 
-- EfficientNet architectures
-- Vision Transformers (ViTs)
-- Ensemble learning
-- Multi-modal metadata integration
-- Uncertainty estimation
-- Calibration analysis
-- Federated medical learning
-- Clinical deployment optimization
+Although the proposed system achieved strong classification performance, several important reliability considerations remain for real-world healthcare deployment.
+
+## Dataset Imbalance
+
+The HAM10000 dataset contains significant class imbalance, with some lesion categories being substantially underrepresented. While weighted loss functions improved minority class learning, imbalance may still affect model robustness and calibration.
+
+## Generalization Challenges
+
+The model was trained and evaluated on a single dermatology dataset. Performance may vary across:
+
+- different clinical institutions,
+- imaging devices,
+- patient populations,
+- skin tones,
+- acquisition conditions.
+
+External validation on diverse datasets is necessary before clinical deployment.
+
+## Explainability Limitations
+
+Grad-CAM provides visual explanations of model attention regions; however, saliency maps do not guarantee causal reasoning. Explainability methods may sometimes highlight correlated regions rather than medically meaningful evidence.
+
+Therefore, interpretability should support — not replace — clinical judgment.
+
+## Clinical Reliability
+
+Strong predictive performance alone is insufficient for healthcare AI systems. Reliable deployment additionally requires:
+
+- uncertainty estimation,
+- calibration analysis,
+- clinician evaluation,
+- fairness assessment,
+- safety validation,
+- human-AI interaction studies.
+
+This project represents an exploratory step toward more trustworthy clinical AI systems.
+
+---
+
+# Future Work
+
+Potential future research directions include:
+
+- EfficientNet and Vision Transformer architectures
+- Ensemble deep learning systems
+- Uncertainty-aware prediction
+- Calibration analysis for clinical confidence estimation
+- Multimodal learning using patient metadata
+- Federated medical AI systems
+- Skin tone fairness evaluation
+- Human-AI collaborative diagnosis
+- Clinician-in-the-loop evaluation
+- Real-world clinical deployment studies
+- Explainability benchmarking beyond Grad-CAM
+- Trustworthy AI validation pipelines for healthcare systems
+
+Future work will focus particularly on uncertainty estimation and reliability-aware clinical AI systems for safer healthcare deployment.
 
 ---
 
@@ -355,6 +403,22 @@ Potential future work includes:
 - Matplotlib
 - Scikit-learn
 - OpenCV
+
+---
+
+
+# Key Research Takeaways
+
+This project reinforced several important insights regarding trustworthy healthcare AI systems:
+
+- High predictive accuracy alone is insufficient for clinical deployment
+- Explainability improves transparency but does not fully solve reliability concerns
+- Medical datasets often contain substantial imbalance and bias challenges
+- Transfer learning can significantly improve performance in limited-data medical settings
+- Clinical AI systems require interpretability, calibration, and uncertainty awareness
+- Trustworthy healthcare AI must prioritize reliability alongside performance
+
+These observations motivated a broader research interest in explainable and reliable AI systems for healthcare applications.
 
 ---
 

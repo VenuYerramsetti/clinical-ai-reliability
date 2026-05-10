@@ -206,29 +206,50 @@ The explainability results suggest that the network is learning medically meanin
 
 # 8. Limitations
 
-Several limitations remain in the current system:
+Despite promising results, several limitations remain in the current system.
 
-- Class imbalance affects minority category performance
-- Limited dataset diversity may impact generalization
-- Single-model architecture without ensemble methods
-- Lack of uncertainty estimation for clinical deployment
-- Limited metadata integration
+## Dataset Bias and Imbalance
 
-Future work should investigate calibration analysis, uncertainty-aware prediction, multimodal learning, and larger clinical datasets.
+The HAM10000 dataset exhibits substantial class imbalance, which may affect minority class robustness despite weighted optimization strategies. Additionally, limited diversity across acquisition conditions and skin tones may reduce generalization capability.
+
+## Limited Clinical Validation
+
+The experiments were conducted using retrospective benchmark data rather than prospective clinical evaluation. Real-world deployment would require clinician validation, calibration analysis, safety assessment, and external institutional testing.
+
+## Explainability Constraints
+
+Grad-CAM improves interpretability by highlighting influential image regions; however, saliency-based explanations do not necessarily represent causal medical reasoning. Explainability methods may sometimes produce unstable or misleading visualizations.
+
+## Reliability and Uncertainty
+
+The current system does not incorporate uncertainty estimation or confidence calibration mechanisms, both of which are critical for trustworthy healthcare AI deployment.
+
+## Model Scope
+
+This work focused on a single CNN architecture without ensemble learning or multimodal integration. Future systems may benefit from combining image analysis with patient metadata and uncertainty-aware frameworks.
+
+Overall, this project should be viewed as an exploratory step toward more reliable and interpretable clinical AI systems rather than a deployment-ready diagnostic solution.
 
 ---
 
 # 9. Future Work
 
-Potential future directions include:
+Several future research directions emerge from this work.
 
-- EfficientNet and Vision Transformer architectures
-- Ensemble deep learning methods
-- Federated medical AI systems
-- Uncertainty estimation and calibration
-- Multimodal metadata integration
-- Clinical decision support systems
-- Human-AI collaborative diagnosis
+Future systems may investigate:
+
+- Vision Transformers and EfficientNet architectures
+- Ensemble learning for improved robustness
+- Uncertainty-aware prediction and confidence estimation
+- Calibration analysis for trustworthy clinical deployment
+- Multimodal integration using demographic and clinical metadata
+- Fairness analysis across patient populations and skin tones
+- Federated learning for privacy-preserving healthcare AI
+- Human-AI collaborative diagnostic workflows
+- Clinician-centered explainability evaluation
+- Reliability benchmarking for medical AI systems
+
+A particularly important future direction involves uncertainty estimation and calibration-aware clinical AI pipelines capable of communicating predictive confidence in safety-critical healthcare environments.
 
 ---
 
