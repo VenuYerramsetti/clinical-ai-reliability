@@ -74,8 +74,8 @@ print("\nModel loaded successfully!")
 # FREEZE FEATURE EXTRACTOR
 # ====================================
 
-for param in model.parameters():
-    param.requires_grad = False
+# for param in model.parameters():
+#     param.requires_grad = False
 
 # ====================================
 # MODIFY FINAL LAYER
@@ -89,8 +89,8 @@ model.fc = nn.Linear(
 )
 
 # Train only classifier layer
-for param in model.fc.parameters():
-    param.requires_grad = True
+# for param in model.fc.parameters():
+#     param.requires_grad = True
 
 print("\nFinal layer:")
 print(model.fc)
@@ -146,8 +146,8 @@ print("\nLoss function created!")
 # ====================================
 
 optimizer = optim.Adam(
-    model.fc.parameters(),
-    lr=0.0003
+    model.parameters(),
+    lr=0.0001
 )
 
 print("\nOptimizer initialized!")
