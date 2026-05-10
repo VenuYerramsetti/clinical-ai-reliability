@@ -1,6 +1,9 @@
-# Clinical AI Reliability: Explainable Skin Lesion Classification Using Transfer Learning and Grad-CAM
+# Clinical AI Reliability:
+Explainable Skin Lesion Classification Using Deep Transfer Learning and Grad-CAM
 
 ## Venu Madhuri Yerramsetti
+
+**GitHub Repository:** https://github.com/VenuYerramsetti/clinical-ai-reliability
 
 ---
 
@@ -8,7 +11,9 @@
 
 Artificial intelligence systems are increasingly being explored for clinical diagnostic applications; however, reliability and interpretability remain critical challenges in healthcare deployment. This work presents an explainable deep learning framework for multiclass skin lesion classification using the HAM10000 dermatology dataset. A pretrained ResNet18 architecture was optimized using transfer learning, partial fine-tuning, weighted cross-entropy loss, and learning rate scheduling to improve performance on imbalanced clinical data. Grad-CAM visualizations were integrated to provide interpretable heatmaps highlighting image regions contributing most strongly to model predictions.
 
-The proposed system achieved a test accuracy of 84.30% with strong weighted F1 performance across seven lesion categories. Experimental results demonstrate that explainability methods can improve transparency while maintaining competitive predictive performance. This project contributes toward the development of trustworthy clinical AI systems for healthcare applications.
+The proposed system achieved a test accuracy of 84.30% with strong weighted F1 performance across seven lesion categories. Experimental results demonstrate that explainability methods can improve transparency while maintaining competitive predictive performance. This work contributes toward the development of trustworthy clinical AI systems for healthcare applications.
+
+**Keywords:** Medical AI, Explainable AI, Grad-CAM, Skin Lesion Classification, Clinical Reliability, Deep Learning, Transfer Learning, Healthcare AI
 
 ---
 
@@ -18,7 +23,7 @@ Artificial intelligence has demonstrated significant potential in medical image 
 
 Skin cancer is among the most common forms of cancer worldwide, and early diagnosis significantly improves treatment outcomes. Dermoscopic image analysis using deep learning has emerged as a promising approach for automated skin lesion classification. However, many clinical AI systems behave as black-box models, limiting physician trust and reducing transparency in diagnostic reasoning.
 
-This work focuses on reliable and explainable skin lesion classification using deep learning. The project investigates transfer learning with ResNet18 combined with Grad-CAM explainability to improve both predictive performance and interpretability. The objective is to create a clinically relevant AI pipeline capable of supporting trustworthy medical decision systems.
+This work focuses on reliable and explainable skin lesion classification using deep learning. The study investigates transfer learning with ResNet18 combined with Grad-CAM explainability to improve both predictive performance and interpretability. The objective is to create a clinically relevant AI pipeline capable of supporting trustworthy medical decision systems.
 
 The main contributions of this work include:
 
@@ -127,9 +132,11 @@ Grad-CAM visualizations were generated to improve model interpretability. Heatma
 
 The overall architecture of the proposed clinical AI reliability pipeline is illustrated below.
 
+**Figure 1.** Overall architecture of the proposed clinical AI reliability pipeline.
+
 ![Architecture Diagram](../plots/architecture.png)
 
-The proposed pipeline integrates transfer learning, weighted optimization, and explainability analysis into a unified framework for trustworthy skin lesion classification.
+The framework integrates transfer learning, weighted optimization, validation monitoring, and Grad-CAM explainability into a unified medical imaging pipeline.
 
 ---
 
@@ -184,6 +191,8 @@ Experiments were conducted using Apple Silicon acceleration with PyTorch MPS bac
 
 The confusion matrix demonstrates strong classification performance for majority classes while indicating remaining challenges in minority class differentiation.
 
+**Figure 2.** Confusion matrix for multiclass skin lesion classification.
+
 ![Confusion Matrix](../plots/confusion_matrix.png)
 
 ---
@@ -194,9 +203,13 @@ Training and validation curves indicate stable convergence behavior with reduced
 
 ### Loss Curve
 
+**Figure 3.** Training and validation loss curves across epochs.
+
 ![Loss Curve](../plots/loss_curve.png)
 
 ### Validation Accuracy
+
+**Figure 4.** Validation accuracy progression during model training.
 
 ![Validation Accuracy](../plots/validation_accuracy.png)
 
@@ -210,21 +223,31 @@ The explainability results suggest that the network is learning medically meanin
 
 ## Grad-CAM Example 1
 
+**Figure 5.** Grad-CAM visualization highlighting lesion-focused prediction regions.
+
 ![GradCAM1](../plots/gradcam/sample_1.png)
 
 ## Grad-CAM Example 2
+
+**Figure 6.** Explainability heatmap generated for skin lesion classification.
 
 ![GradCAM2](../plots/gradcam/sample_2.png)
 
 ## Grad-CAM Example 3
 
+**Figure 7.** Visualization of model attention using Grad-CAM.
+
 ![GradCAM3](../plots/gradcam/sample_3.png)
 
 ## Grad-CAM Example 4
 
+**Figure 8.** Grad-CAM interpretability output for lesion localization.
+
 ![GradCAM4](../plots/gradcam/sample_4.png)
 
 ## Grad-CAM Example 5
+
+**Figure 9.** Heatmap-based explanation for clinical image prediction.
 
 ![GradCAM5](../plots/gradcam/sample_5.png)
 
@@ -232,7 +255,7 @@ The explainability results suggest that the network is learning medically meanin
 
 # 8. Limitations
 
-Despite promising results, several limitations remain in the current system.
+Despite promising results, several limitations remain in the current framework.
 
 ## Dataset Bias and Imbalance
 
@@ -248,13 +271,13 @@ Grad-CAM improves interpretability by highlighting influential image regions; ho
 
 ## Reliability and Uncertainty
 
-The current system does not incorporate uncertainty estimation or confidence calibration mechanisms, both of which are critical for trustworthy healthcare AI deployment.
+The current framework does not incorporate uncertainty estimation or confidence calibration mechanisms, both of which are critical for trustworthy healthcare AI deployment.
 
 ## Model Scope
 
 This work focused on a single CNN architecture without ensemble learning or multimodal integration. Future systems may benefit from combining image analysis with patient metadata and uncertainty-aware frameworks.
 
-Overall, this project should be viewed as an exploratory step toward more reliable and interpretable clinical AI systems rather than a deployment-ready diagnostic solution.
+Overall, this work should be viewed as an exploratory step toward more reliable and interpretable clinical AI systems rather than a deployment-ready diagnostic solution.
 
 ---
 
@@ -277,17 +300,39 @@ Future systems may investigate:
 
 A particularly important future direction involves uncertainty estimation and calibration-aware clinical AI pipelines capable of communicating predictive confidence in safety-critical healthcare environments.
 
----
-
-# 10. Conclusion
-
-This work presented an explainable deep learning framework for reliable skin lesion classification using transfer learning and Grad-CAM. Experimental results demonstrate that combining partial fine-tuning, weighted optimization, and explainability techniques can produce strong multiclass classification performance while improving model interpretability.
-
-The project contributes toward trustworthy medical AI research by emphasizing transparency and clinical reliability alongside predictive accuracy. Future work will focus on uncertainty-aware clinical AI systems and advanced explainability approaches for healthcare deployment.
 
 ---
 
-# References
+# 10.  Ethical Considerations
+
+Clinical AI systems require careful evaluation regarding fairness, transparency, reliability, and patient safety. Automated diagnostic systems should support clinicians rather than replace clinical expertise.
+
+Potential risks include:
+
+- dataset bias,
+- unequal performance across demographic groups,
+- overreliance on automated predictions,
+- limited generalization across healthcare environments.
+
+Explainability methods such as Grad-CAM may improve interpretability; however, visual explanations alone are insufficient for clinical validation.
+
+Responsible deployment of healthcare AI systems requires rigorous external validation, uncertainty estimation, fairness analysis, and clinician oversight.
+
+---
+
+# 11. Conclusion
+
+This work presented an explainable deep learning framework for reliable skin lesion classification using transfer learning and Grad-CAM.
+
+Experimental results demonstrate that combining partial fine-tuning, weighted optimization, and explainability techniques can produce strong multiclass classification performance while improving model interpretability.
+
+This work contributes toward trustworthy medical AI research by emphasizing transparency and clinical reliability alongside predictive accuracy.
+
+Future work will focus on uncertainty-aware clinical AI systems and advanced explainability approaches for healthcare deployment.
+
+---
+
+# 12. References
 
 1. Tschandl, P., Rosendahl, C., & Kittler, H. (2018). The HAM10000 Dataset.
 2. He, K., et al. (2016). Deep Residual Learning for Image Recognition.
