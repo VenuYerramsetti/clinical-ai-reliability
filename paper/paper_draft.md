@@ -127,42 +127,7 @@ Grad-CAM visualizations were generated to improve model interpretability. Heatma
 
 The overall architecture of the proposed clinical AI reliability pipeline is illustrated below.
 
-```mermaid
-flowchart TD
-
-A[HAM10000 Dataset]
---> B[Data Loading Pipeline]
-
-B --> C[Image Preprocessing]
-
-C --> D[Train Validation Test Split]
-
-D --> E[ResNet18 Transfer Learning]
-
-E --> F[Frozen Early Layers]
-
-E --> G[Fine Tuned Layer4]
-
-G --> H[Modified Fully Connected Layer]
-
-H --> I[Weighted Cross Entropy Loss]
-
-I --> J[Optimizer and LR Scheduler]
-
-J --> K[Validation Monitoring]
-
-K --> L[Best Model Checkpoint]
-
-L --> M[Test Evaluation]
-
-M --> N[Classification Report]
-
-M --> O[Confusion Matrix]
-
-M --> P[Grad-CAM Explainability]
-
-P --> Q[Clinical AI Interpretability]
-```
+![Architecture Diagram](../plots/architecture.png)
 
 The proposed pipeline integrates transfer learning, weighted optimization, and explainability analysis into a unified framework for trustworthy skin lesion classification.
 
