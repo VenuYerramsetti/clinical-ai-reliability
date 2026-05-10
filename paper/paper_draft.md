@@ -123,6 +123,51 @@ Grad-CAM visualizations were generated to improve model interpretability. Heatma
 
 ---
 
+# 4.6 System Architecture
+
+The overall architecture of the proposed clinical AI reliability pipeline is illustrated below.
+
+```mermaid
+flowchart TD
+
+A[HAM10000 Dataset]
+--> B[Data Loading Pipeline]
+
+B --> C[Image Preprocessing]
+
+C --> D[Train Validation Test Split]
+
+D --> E[ResNet18 Transfer Learning]
+
+E --> F[Frozen Early Layers]
+
+E --> G[Fine Tuned Layer4]
+
+G --> H[Modified Fully Connected Layer]
+
+H --> I[Weighted Cross Entropy Loss]
+
+I --> J[Optimizer and LR Scheduler]
+
+J --> K[Validation Monitoring]
+
+K --> L[Best Model Checkpoint]
+
+L --> M[Test Evaluation]
+
+M --> N[Classification Report]
+
+M --> O[Confusion Matrix]
+
+M --> P[Grad-CAM Explainability]
+
+P --> Q[Clinical AI Interpretability]
+```
+
+The proposed pipeline integrates transfer learning, weighted optimization, and explainability analysis into a unified framework for trustworthy skin lesion classification.
+
+---
+
 # 5. Experimental Setup
 
 ## 5.1 Hardware
@@ -174,8 +219,7 @@ Experiments were conducted using Apple Silicon acceleration with PyTorch MPS bac
 
 The confusion matrix demonstrates strong classification performance for majority classes while indicating remaining challenges in minority class differentiation.
 
-### Figure to Include
-- `plots/confusion_matrix.png`
+![Confusion Matrix](../plots/confusion_matrix.png)
 
 ---
 
@@ -183,9 +227,13 @@ The confusion matrix demonstrates strong classification performance for majority
 
 Training and validation curves indicate stable convergence behavior with reduced overfitting due to early stopping and scheduler-based optimization.
 
-### Figures to Include
-- `plots/loss_curve.png`
-- `plots/validation_accuracy.png`
+### Loss Curve
+
+![Loss Curve](../plots/loss_curve.png)
+
+### Validation Accuracy
+
+![Validation Accuracy](../plots/validation_accuracy.png)
 
 ---
 
@@ -195,12 +243,25 @@ Grad-CAM visualizations demonstrate that the model primarily focuses on lesion b
 
 The explainability results suggest that the network is learning medically meaningful visual patterns rather than relying on irrelevant background features.
 
-### Figures to Include
-- `plots/gradcam/sample_1.png`
-- `plots/gradcam/sample_2.png`
-- `plots/gradcam/sample_3.png`
-- `plots/gradcam/sample_4.png`
-- `plots/gradcam/sample_5.png`
+## Grad-CAM Example 1
+
+![GradCAM1](../plots/gradcam/sample_1.png)
+
+## Grad-CAM Example 2
+
+![GradCAM2](../plots/gradcam/sample_2.png)
+
+## Grad-CAM Example 3
+
+![GradCAM3](../plots/gradcam/sample_3.png)
+
+## Grad-CAM Example 4
+
+![GradCAM4](../plots/gradcam/sample_4.png)
+
+## Grad-CAM Example 5
+
+![GradCAM5](../plots/gradcam/sample_5.png)
 
 ---
 
