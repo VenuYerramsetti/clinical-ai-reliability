@@ -71,11 +71,16 @@ model = models.resnet18(weights=weights)
 print("\nModel loaded successfully!")
 
 # ====================================
-# FREEZE FEATURE EXTRACTOR
+# PARTIAL FINE-TUNING
 # ====================================
 
-# for param in model.parameters():
-#     param.requires_grad = False
+# Freeze all layers first
+for param in model.parameters():
+    param.requires_grad = False
+
+# Unfreeze layer4
+for param in model.layer4.parameters():
+    param.requires_grad = True
 
 # ====================================
 # MODIFY FINAL LAYER
@@ -88,9 +93,9 @@ model.fc = nn.Linear(
     num_classes
 )
 
-# Train only classifier layer
-# for param in model.fc.parameters():
-#     param.requires_grad = True
+# Train classifier head
+for param in model.fc.parameters():
+    param.requires_grad = True
 
 print("\nFinal layer:")
 print(model.fc)
@@ -117,7 +122,6 @@ class_counts = torch.tensor([
     327
 ], dtype=torch.float32)
 
-# Better balanced weighting
 class_weights = (
     class_counts.sum() / class_counts
 )
@@ -146,7 +150,10 @@ print("\nLoss function created!")
 # ====================================
 
 optimizer = optim.Adam(
-    model.parameters(),
+    filter(
+        lambda p: p.requires_grad,
+        model.parameters()
+    ),
     lr=0.0001
 )
 
@@ -158,7 +165,7 @@ print("\nOptimizer initialized!")
 
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(
     optimizer,
-    mode="max",
+    mode="min",
     patience=2,
     factor=0.5
 )
@@ -167,11 +174,11 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(
 # TRAINING CONFIG
 # ====================================
 
-NUM_EPOCHS = 10
+NUM_EPOCHS = 15
 
-best_val_accuracy = 0.0
+best_val_loss = float("inf")
 
-patience = 3
+patience = 5
 patience_counter = 0
 
 print("\nTraining configuration ready!")
@@ -302,15 +309,15 @@ for epoch in range(NUM_EPOCHS):
     # LR SCHEDULER
     # ====================================
 
-    scheduler.step(val_accuracy)
+    scheduler.step(epoch_val_loss)
 
     # ====================================
     # SAVE BEST MODEL
     # ====================================
 
-    if val_accuracy > best_val_accuracy:
+    if epoch_val_loss < best_val_loss:
 
-        best_val_accuracy = val_accuracy
+        best_val_loss = epoch_val_loss
 
         patience_counter = 0
 
@@ -463,17 +470,16 @@ print("\nClassification Report:\n")
 
 print(report)
 
-# Save report
+# ====================================
+# SAVE REPORTS
+# ====================================
+
 with open(
     "reports/classification_report.txt",
     "w"
 ) as f:
 
     f.write(report)
-
-# ====================================
-# SAVE METRICS
-# ====================================
 
 with open(
     "reports/test_metrics.txt",
@@ -491,8 +497,8 @@ with open(
     )
 
     f.write(
-        f"Best Validation Accuracy: "
-        f"{best_val_accuracy:.2f}%\n"
+        f"Best Validation Loss: "
+        f"{best_val_loss:.4f}\n"
     )
 
     f.write(
@@ -509,7 +515,6 @@ cm = confusion_matrix(
     all_predictions
 )
 
-# Save raw confusion matrix
 np.savetxt(
     "reports/confusion_matrix.csv",
     cm,
@@ -539,7 +544,6 @@ plt.yticks(
 )
 
 plt.xlabel("Predicted")
-
 plt.ylabel("True")
 
 plt.title("Confusion Matrix")
@@ -580,7 +584,6 @@ plt.plot(
 )
 
 plt.xlabel("Epoch")
-
 plt.ylabel("Loss")
 
 plt.title("Loss Curves")
@@ -607,7 +610,6 @@ plt.plot(
 )
 
 plt.xlabel("Epoch")
-
 plt.ylabel("Accuracy (%)")
 
 plt.title("Validation Accuracy")
