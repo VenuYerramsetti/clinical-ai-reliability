@@ -1,4 +1,5 @@
 # Clinical AI Reliability
+
 ## Explainable Deep Learning for Skin Lesion Classification Using ResNet18 and Grad-CAM
 
 ---
@@ -9,23 +10,23 @@ This project investigates the reliability, interpretability, and performance of 
 
 The system combines:
 
-- Transfer learning
-- Fine-tuning strategies
+- Transfer Learning
+- Partial Fine-Tuning
 - Explainable AI (Grad-CAM)
-- Early stopping
-- Weighted loss functions
-- Learning rate scheduling
-- Medical image analysis
+- Early Stopping
+- Weighted Loss Functions
+- Learning Rate Scheduling
+- Medical Image Classification
 
-The primary goal is to improve trustworthy AI systems for healthcare applications by combining strong predictive performance with interpretable visual explanations.
+The primary objective is to improve trustworthy AI systems for healthcare applications by combining strong predictive performance with interpretable visual explanations.
 
 ---
 
 # Dataset
 
-Dataset used:
+Dataset Used:
 
-**HAM10000**  
+## HAM10000
 (Human Against Machine with 10000 Training Images)
 
 The dataset contains 7 diagnostic skin lesion categories:
@@ -40,14 +41,20 @@ The dataset contains 7 diagnostic skin lesion categories:
 | vasc | Vascular lesions |
 | df | Dermatofibroma |
 
-### Dataset Statistics
+---
 
-- Total Images: 10,015
-- Image Type: Dermoscopic Images
-- Classes: 7
-- Input Resolution: 224 × 224
+## Dataset Statistics
 
-### Dataset Split
+| Property | Value |
+|---|---|
+| Total Images | 10,015 |
+| Classes | 7 |
+| Resolution | 224 × 224 |
+| Image Type | Dermoscopic Images |
+
+---
+
+## Dataset Split
 
 | Split | Percentage |
 |---|---|
@@ -69,7 +76,7 @@ The project uses partial fine-tuning:
 
 - Early layers frozen
 - Final ResNet block (`layer4`) unfrozen
-- Final classification head replaced
+- Final classification layer replaced
 
 Final classifier:
 
@@ -79,20 +86,61 @@ nn.Linear(512, 7)
 
 ---
 
+# System Architecture
+
+```mermaid
+flowchart TD
+
+A[HAM10000 Dataset]
+--> B[Data Loading Pipeline]
+
+B --> C[Image Preprocessing]
+
+C --> D[Train Validation Test Split]
+
+D --> E[ResNet18 Transfer Learning]
+
+E --> F[Frozen Early Layers]
+
+E --> G[Fine Tuned Layer4]
+
+G --> H[Modified Fully Connected Layer]
+
+H --> I[Weighted Cross Entropy Loss]
+
+I --> J[Optimizer and LR Scheduler]
+
+J --> K[Validation Monitoring]
+
+K --> L[Best Model Checkpoint]
+
+L --> M[Test Evaluation]
+
+M --> N[Classification Report]
+
+M --> O[Confusion Matrix]
+
+M --> P[Grad-CAM Explainability]
+
+P --> Q[Clinical AI Interpretability]
+```
+
+---
+
 # Training Features
 
 The training pipeline includes:
 
-- Transfer learning
-- Partial fine-tuning
-- Data augmentation
-- Weighted cross-entropy loss
-- Early stopping
-- ReduceLROnPlateau scheduler
-- Validation checkpointing
-- Experiment tracking
-- Confusion matrix generation
-- Grad-CAM explainability
+- Transfer Learning
+- Partial Fine-Tuning
+- Data Augmentation
+- Weighted Cross-Entropy Loss
+- Early Stopping
+- ReduceLROnPlateau Scheduler
+- Validation Checkpointing
+- Experiment Tracking
+- Confusion Matrix Generation
+- Grad-CAM Explainability
 
 ---
 
@@ -120,7 +168,13 @@ The training pipeline includes:
 
 ---
 
-# Training Curves
+# Results
+
+## Confusion Matrix
+
+![Confusion Matrix](plots/confusion_matrix.png)
+
+---
 
 ## Loss Curve
 
@@ -131,12 +185,6 @@ The training pipeline includes:
 ## Validation Accuracy
 
 ![Validation Accuracy](plots/validation_accuracy.png)
-
----
-
-# Confusion Matrix
-
-![Confusion Matrix](plots/confusion_matrix.png)
 
 ---
 
@@ -316,7 +364,8 @@ Potential future work includes:
 
 AI/ML Research and Graduate School Applicant
 
-Research Interests:
+### Research Interests
+
 - Medical AI
 - Explainable AI
 - Clinical Reliability
@@ -328,4 +377,4 @@ Research Interests:
 
 # License
 
-This project is for academic and research purposes.
+This project is intended for academic and research purposes.
